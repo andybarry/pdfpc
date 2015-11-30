@@ -274,7 +274,11 @@ namespace pdfpc {
             Gst.Bin bin = new Gst.Bin("bin");
             Gst.Element tee = Gst.ElementFactory.make("tee", "tee");
             bin.add_many(tee);
-            bin.add_pad(new Gst.GhostPad("sink", tee.get_static_pad("sink")));
+
+            Gst.GhostPad pad = new Gst.GhostPad("sink", tee.get_static_pad("sink"));
+            pad.add_probe(Gst.PadProbeType.DATA_UPSTREAM, print_frame_number);
+
+            bin.add_pad(pad);
             Gdk.Rectangle rect;
             int n = 0;
             uint* xid;
@@ -306,6 +310,31 @@ namespace pdfpc {
             bus.add_signal_watch();
             bus.message["error"] += this.on_message;
             bus.message["eos"] += this.on_eos;
+        }
+
+        public Gst.PadProbeReturn print_frame_number(Gst.Pad pad, Gst.PadProbeInfo info) {
+            stderr.printf("OMG IN PAD PROBE\n");
+            string name;
+            if (info.get_event() != null) {
+                name = Gst.EventType.get_name(info.get_event().type);
+                stderr.printf("event: %s\n", name);
+
+                if (info.get_event().type == Gst.EventType.QOS) {
+                    Gst.ClockTime timestamp;
+                    info.get_event().parse_qos(null, null, null, out timestamp);
+                    stderr.printf("TIME: %lld\n", timestamp);
+
+                   if (timestamp > 2300000000) {
+                   stderr.printf("ATEEEEEEEETMP\n");
+                        //this.pipeline.set_state(Gst.State.PAUSED);
+                        //this.pipeline.seek_simple(Gst.Format.TIME, Gst.SeekFlags.FLUSH, this.starttime * Gst.SECOND);
+                        //this.pipeline.set_state(Gst.State.PLAYING);
+                        this.pipeline.seek_simple(Gst.Format.TIME, Gst.SeekFlags.FLUSH, this.starttime * Gst.SECOND);
+                   }
+                }
+
+            }
+            return Gst.PadProbeReturn.OK;
         }
 
         /**
@@ -556,15 +585,24 @@ namespace pdfpc {
             cr.scale(this.scalex, -this.scaley);
 
             this.draw_seek_bar(cr, timestamp);
-
+stderr.printf("time: %lld\n", timestamp);
             // if a stop time is defined, stop there (but still let
             // the user manually seek *after* this timestamp)
             if (this.stoptime != 0 &&
                 this.stoptime * Gst.SECOND < timestamp &&
                 timestamp < (this.stoptime + 0.2) * Gst.SECOND) {
+stderr.printf("AT A STOP\n");
                 if (this.loop) {
-                    this.pipeline.seek_simple(Gst.Format.TIME, Gst.SeekFlags.FLUSH, this.starttime * Gst.SECOND);
+
+                    stderr.printf("it's a loop\n");
+
+                    //this.pause();
+   //                 this.pause();
+                    //this.pipeline.seek_simple(Gst.Format.TIME, Gst.SeekFlags.SNAP_NEAREST | Gst.SeekFlags.FLUSH, this.starttime * Gst.SECOND);
+                    //this.play();
+
                 } else {
+                    stderr.printf("not a loop\n");
                     // Can't seek to beginning w/o updating output, so mark to seek later
                     this.eos = true;
                     this.pause();
