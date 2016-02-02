@@ -17,113 +17,12 @@ software.
 More information, including screenshots and a demo presentation, can be found
 at https://pdfpc.github.io/
 
-Requirements
+Installation
 ============
+On Ubuntu or Debian systems:
 
-In order to compile and run pdfpc the following
-requirements need to be met:
+    sudo apt-get install pdf-presenter-console
 
-- CMake Version >=2.6
-- vala >= 0.26
-- GTK+ >= 3.10
-- gee 0.8
-- poppler with glib bindings
-- gstreamer 1.0
-
-Compile and install
-===================
-
-Compiling from source tarballs
-------------------------------
-
-You can download the latest stable release of pdfpc in the release section of
-github (https://github.com/pdfpc/pdfpc/releases). Uncompress the tarball (we
-use v4.0 as an example here)::
-
-    tar xvf pdfpc-4.0.tar.gz
-
-Change to the extracted directory::
-
-    cd pdfpc-4.0
-
-Compile and install::
-
-    mkdir build/
-    cd build/
-    cmake ..
-    make
-    sudo make install
-
-If there are no errors in the process, you just installed pdfpc on your system.
-Congratulations! If there were errors, they are probably due to missing
-dependencies. Please check that you have all the necessary libraries (in some
-distributions you may have to install *-devel* packages).
-
-Note: You may alter the final installation prefix in the cmake call. By default
-the pdfpc files will be installed under */usr/local/*. If you want to change
-that, for example to be installed under */usr/*, with config files under
-*/etc/* you may specify another installation prefix as follows::
-
-    cmake -DCMAKE_INSTALL_PREFIX="/usr" -DSYSCONFDIR=/etc ..
-
-By default, pdfpc includes support for movie playback.  This requires several
-gstreamer dependencies as well as gdk-x11.  The requirement for these packages
-can be removed by compiling without support for movie playback by passing
-*-DMOVIES=OFF* to the cmake command.
-
-Compiling from github
----------------------
-
-If you want the bleeding-edge version of pdfpc, you should checkout the git
-repository. The *master* branch should be fairly stable and safe to use.
-
-The pdfpc source can be retrieved from github::
-
-    git clone git://github.com/pdfpc/pdfpc.git
-
-After it has been transfered you need to switch to the ``pdfpc`` directory,
-which has just been created.
-
-You are now set to compile and install pdfpc.  Start by creating a build
-directory (this is optional but it keeps the directories clean, in case you
-want to do some changes)::
-
-    mkdir build/
-    cd build/
-
-After you are inside the build directory create the needed Makefiles using
-CMake::
-
-    cmake ..
-
-If you have put your build directory elsewhere on your system adapt the path
-above accordingly. You need to provide CMake with the pdfpc directory as
-created by git. As pointed out before, you may alter the installation
-directories via the *-DCMAKE_INSTALL_PREFIX* and *-DSYSCONFDIR* command line
-arguments.
-
-If all requirements are met, CMake will tell you that it created all the
-necessary build files for you. If any of the requirements were not met you will
-be informed of it to provide the necessary files or install the appropriate
-packages.
-
-The next step is to compile and install pdfpc using GNU Make or any other make
-derivative you may have installed. Simply issue the following command to start
-building the application::
-
-    make
-    sudo make install
-
-Congratulations you just installed pdfpc on your system.
-
-Compiling Trouble Shooting
---------------------------
-
-Some distributions do not have a *valac* executable. Instead they ship with a
-version suffix like *valac-0.28*. If cmake can not find your compiler you can
-try running cmake with::
-
-    cmake -DVALA_EXECUTABLE:NAMES=valac-0.28 ..
 
 How to go on
 ============
@@ -143,10 +42,3 @@ https://github.com/davvil/pdfpc
 pdfpc is a fork of Pdf Presenter Console by Jakob Westhoff, available at
 https://github.com/jakobwesthoff/Pdf-Presenter-Console
 
-
-..
-   Local Variables:
-   mode: rst
-   fill-column: 79
-   End: 
-   vim: et syn=rst tw=79
