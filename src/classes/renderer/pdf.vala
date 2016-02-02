@@ -70,7 +70,6 @@ namespace pdfpc {
          */
         public override Cairo.ImageSurface render_to_surface(int slide_number)
             throws Renderer.RenderError {
-
             var metadata = this.metadata as Metadata.Pdf;
 
             // Check if a valid page is requested, before locking anything.
@@ -87,13 +86,16 @@ namespace pdfpc {
                 }
             }
 
+            stdout.printf("[%d: %dx%d]: not in cache\n", slide_number, this.width, this.height);
             // Retrieve the Poppler.Page for the page to render
             var page = metadata.get_document().get_page(slide_number);
-
+stdout.printf("[%d: %dx%d]: 1\n", slide_number, this.width, this.height);
             // A lot of Pdfs have transparent backgrounds defined. We render
             // every page before a white background because of this.
             Cairo.ImageSurface surface = new Cairo.ImageSurface(Cairo.Format.RGB24, this.width,
                 this.height);
+
+
             Cairo.Context cr = new Cairo.Context(surface);
 
             cr.set_source_rgb(255, 255, 255);
@@ -103,13 +105,16 @@ namespace pdfpc {
             cr.scale(this.scaling_factor, this.scaling_factor);
             cr.translate(-metadata.get_horizontal_offset(this.area),
                 -metadata.get_vertical_offset(this.area));
-            page.render(cr);
+                stdout.printf("[%d: %dx%d]: 2\n", slide_number, this.width, this.height);
+            page.render(cr); // -- this line causes a crash with multiple threads -- //
+stdout.printf("[%d: %dx%d]: 3\n", slide_number, this.width, this.height);
 
             // If the cache is enabled store the newly rendered pixmap
             if (this.cache != null) {
                 this.cache.store( slide_number, surface );
             }
 
+            stdout.printf("[%d: %dx%d]: finished rendering\n", slide_number, this.width, this.height);
             return surface;
         }
 

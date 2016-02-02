@@ -24,6 +24,28 @@
  */
 
 namespace pdfpc {
+
+
+    class MyThread {
+        private int slide_number;
+        private Renderer.Base renderer;
+
+        public MyThread (Renderer.Base renderer, int slide_number) {
+            this.slide_number = slide_number;
+            this.renderer = renderer;
+        }
+
+        public void* thread_func () {
+            stdout.printf("[%d: %dx%d]: RENDERING.\n", this.slide_number, this.renderer.width, this.renderer.height);
+            try {
+                this.renderer.render_to_surface(slide_number);
+            } catch(Renderer.RenderError e) {
+                error("Could not render page '%d' while pre-rendering: %s", slide_number, e.message);
+            }
+            return null;
+        }
+    }
+
     /**
      * Basic view class which is usable with any renderer.
      */
@@ -84,7 +106,35 @@ namespace pdfpc {
                 }
            });
         }
+/*
+        async bool threaded_render(int slide_number) throws ThreadError {
+            SourceFunc callback = threaded_render.callback;
+            bool[] output = new bool[1];
 
+
+            // Hold reference to closure to keep it from being freed whilst
+            // thread is active.
+            ThreadFunc<void*> run = () => {
+                // Render the slide
+                stdout.printf("[%d]: Attempting to render\n", slide_number);
+                try {
+                    this.get_renderer().render_to_surface(slide_number);
+                } catch(Renderer.RenderError e) {
+                    error("Could not render page '%d' while pre-rendering: %s", slide_number, e.message);
+                }
+
+                // Pass back result and schedule callback
+                output[0] = true;
+                Idle.add((owned) callback);
+                return null;
+            };
+            Thread.create<void*>(run, false);
+
+            // Wait for background thread to schedule our callback
+            yield;
+            return output[0];
+        }
+*/
         /**
          * Start a thread to prerender all slides this view might display at
          * some time.
@@ -102,6 +152,47 @@ namespace pdfpc {
 
             this.prerendering_started();
 
+            if (!Thread.supported()) {
+                stderr.printf("Warning: threading not supported\n");
+            }
+
+            uint number_of_threads = get_num_processors() - 1;
+            if (number_of_threads < 1) {
+                number_of_threads = 1;
+            }
+/*
+            //for (int this_slide = 0; this_slide < page_count; this_slide++) {
+            int this_slide = 1;
+            threaded_render.begin(this_slide, (obj, res) => {
+                try {
+                    bool result = threaded_render.end(res);
+                    if (result == true) {
+                        stdout.printf("Succeeded: %d\n", this_slide);
+                    } else {
+                        stdout.printf("Failed: %d\n", this_slide);
+                    }
+                } catch (ThreadError e) {
+                    string msg = e.message;
+                    stderr.printf(@"Thread error: $msg\n");
+                }
+            });
+            //}
+            */
+
+
+
+            var thread_a_data = new MyThread (this.renderer, 10);
+            var thread_b_data = new MyThread (this.renderer, 11);
+
+            try {
+                unowned Thread<void*> thread_a = Thread.create<void*> (thread_a_data.thread_func, true);
+                unowned Thread<void*> thread_b = Thread.create<void*> (thread_b_data.thread_func, true);
+
+            } catch (ThreadError e) {
+                stderr.printf ("%s\n", e.message);
+            }
+
+/*
             Idle.add(() => {
                 if (i == null) {
                     i = malloc(sizeof(int));
@@ -131,7 +222,7 @@ namespace pdfpc {
                 } else {
                     return true;
                 }
-            });
+            }); */
         }
 
         /**
