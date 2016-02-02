@@ -105,7 +105,7 @@ stdout.printf("[%d: %dx%d]: 1\n", slide_number, this.width, this.height);
             cr.scale(this.scaling_factor, this.scaling_factor);
             cr.translate(-metadata.get_horizontal_offset(this.area),
                 -metadata.get_vertical_offset(this.area));
-                stdout.printf("[%d: %dx%d]: 2\n", slide_number, this.width, this.height);
+            stdout.printf("[%d: %dx%d]: 2\n", slide_number, this.width, this.height);
             page.render(cr); // -- this line causes a crash with multiple threads -- //
 stdout.printf("[%d: %dx%d]: 3\n", slide_number, this.width, this.height);
 

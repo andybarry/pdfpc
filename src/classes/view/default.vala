@@ -106,7 +106,7 @@ namespace pdfpc {
                 }
            });
         }
-/*
+
         async bool threaded_render(int slide_number) throws ThreadError {
             SourceFunc callback = threaded_render.callback;
             bool[] output = new bool[1];
@@ -116,7 +116,7 @@ namespace pdfpc {
             // thread is active.
             ThreadFunc<void*> run = () => {
                 // Render the slide
-                stdout.printf("[%d]: Attempting to render\n", slide_number);
+                stdout.printf("[%d: %dx%d]: RENDERING.\n", slide_number, this.get_renderer().width, this.get_renderer().height);
                 try {
                     this.get_renderer().render_to_surface(slide_number);
                 } catch(Renderer.RenderError e) {
@@ -134,7 +134,7 @@ namespace pdfpc {
             yield;
             return output[0];
         }
-*/
+
         /**
          * Start a thread to prerender all slides this view might display at
          * some time.
@@ -160,9 +160,23 @@ namespace pdfpc {
             if (number_of_threads < 1) {
                 number_of_threads = 1;
             }
-/*
+
             //for (int this_slide = 0; this_slide < page_count; this_slide++) {
-            int this_slide = 1;
+            int this_slide = 10;
+            threaded_render.begin(this_slide, (obj, res) => {
+                try {
+                    bool result = threaded_render.end(res);
+                    if (result == true) {
+                        stdout.printf("Succeeded: %d\n", this_slide);
+                    } else {
+                        stdout.printf("Failed: %d\n", this_slide);
+                    }
+                } catch (ThreadError e) {
+                    string msg = e.message;
+                    stderr.printf(@"Thread error: $msg\n");
+                }
+            });
+            this_slide = 11;
             threaded_render.begin(this_slide, (obj, res) => {
                 try {
                     bool result = threaded_render.end(res);
@@ -177,16 +191,16 @@ namespace pdfpc {
                 }
             });
             //}
-            */
 
 
 
-            var thread_a_data = new MyThread (this.renderer, 10);
-            var thread_b_data = new MyThread (this.renderer, 11);
+
+            //var thread_a_data = new MyThread (this.renderer, 10);
+            //var thread_b_data = new MyThread (this.renderer, 11);
 
             try {
-                unowned Thread<void*> thread_a = Thread.create<void*> (thread_a_data.thread_func, true);
-                unowned Thread<void*> thread_b = Thread.create<void*> (thread_b_data.thread_func, true);
+             //   unowned Thread<void*> thread_a = Thread.create<void*> (thread_a_data.thread_func, true);
+             //   unowned Thread<void*> thread_b = Thread.create<void*> (thread_b_data.thread_func, true);
 
             } catch (ThreadError e) {
                 stderr.printf ("%s\n", e.message);
